@@ -52,7 +52,7 @@ public class ClientHandlerV2 implements Runnable {
                 // Чтение полученной строки из потока DataInputStream
                 received = dis.readUTF();
 
-                System.out.println(received);
+                System.out.println(this.name + " : " + received);
 
                 if(received.equals("logout")){
                     this.isloggedin=false;
@@ -60,22 +60,7 @@ public class ClientHandlerV2 implements Runnable {
                     break;
                 }
 
-                // Разбиение строки на получателя и само сообщение
-                StringTokenizer st = new StringTokenizer(received, "#");
-                String msgToSend = st.nextToken();
-                String recipient = st.nextToken();
-
-                // поиск получателя в списке активных юзеров
-                for (ClientHandlerV2 mc : ServerV2.clients)
-                {
-                    // если получатель найден, то отправить сообщение в
-                    // output поток
-                    if (mc.name.equals(recipient) && mc.isloggedin==true)
-                    {
-                        mc.dos.writeUTF(this.name + " : " + msgToSend);
-                        break;
-                    }
-                }
+                dos.writeUTF(this.name + " : " + received);
             } catch (IOException e) {
 
                 e.printStackTrace();
@@ -91,5 +76,12 @@ public class ClientHandlerV2 implements Runnable {
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Client -> " +
+                "name: " + name +
+                " , is logged in: " + isloggedin;
     }
 }

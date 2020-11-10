@@ -33,21 +33,24 @@ import java.util.Scanner;
  */
 public class ClientV2 {
     final static int ServerPort = 5000;
+    final static String ServerHost = "localhost";
+
+    private static String name;
 
     public static void main(String args[]) throws UnknownHostException, IOException
     {
         Scanner scn = new Scanner(System.in);
-
-        // getting localhost ip
-        InetAddress ip = InetAddress.getByName("localhost");
-
+        System.out.println("Введите имя пользователя: ");
+        name = scn.nextLine();
         // Установка соединения
-        Socket s = new Socket(ip, ServerPort);
+        Socket s = new Socket(ServerHost, ServerPort);
 
         // получение input и out потока
+        // поток чтения из сокета
         DataInputStream dis = new DataInputStream(s.getInputStream());
+        // поток записи в сокет
         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-
+        dos.writeUTF(name);
         // sendMessage thread
         Thread sendMessage = new Thread(new Runnable()
         {

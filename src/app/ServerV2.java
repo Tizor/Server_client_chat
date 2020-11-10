@@ -22,7 +22,7 @@ import java.util.List;
 public class ServerV2 {
     // порт
     private static final int PORT = 5000;
-
+    private static String clientName;
     // список клиентов, которые будут подключаться к серверу
     public static List<ClientHandlerV2> clients = new ArrayList<>();
 
@@ -34,22 +34,27 @@ public class ServerV2 {
         ServerSocket serverSocket = new ServerSocket(PORT);
 
         Socket socket;
-
+        System.out.println("Сервер запущен и ожидает новых запросов");
         // запуск бесконечной петли для ожидания подключений
         while(true) {
 
             // ожидание подключения
             socket = serverSocket.accept();
-            System.out.println("Получен новый запрос от клиента: " + socket);
+//            System.out.println("Получен новый запрос от клиента: " + socket);
+            System.out.println("Получен запрос от нового клиента");
 
             // создание input и output потоков
+            // поток чтения из сокета
             DataInputStream dis = new DataInputStream(socket.getInputStream());
+            // поток записи в сокет
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-            System.out.println("Создание нового ClientHandler для этого клиента...");
-
+            System.out.println("Создание нового ClientHandler для нового клиента...");
+            clientName = dis.readUTF();
             // Создание нового clientHandler для этого запроса.
-            ClientHandlerV2 mtch = new ClientHandlerV2(socket,"client " + i, dis, dos);
+            ClientHandlerV2 mtch = new ClientHandlerV2(socket,clientName, dis, dos);
+            System.out.println("Новый пользователь " + clientName + " подключен");
+
 
             // Создание нового потока для этого объекта (clientHandler).
             Thread t = new Thread(mtch);
@@ -58,17 +63,12 @@ public class ServerV2 {
 
             // Добавление клиента в список клиентов
             clients.add(mtch);
+//            clients.forEach(System.out::println);
 
             // запуск потока
             t.start();
 
-            // инкремент i для нового клиента
-            // i используется для наименования клиента
-            // может быть заменено на любое другое имя
-            i++;
         }
 
     }
-
-
 }
