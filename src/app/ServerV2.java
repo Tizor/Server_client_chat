@@ -40,6 +40,7 @@ public class ServerV2 {
 
             // ожидание подключения
             socket = serverSocket.accept();
+            socket.setSoTimeout(10_000);
 //            System.out.println("Получен новый запрос от клиента: " + socket);
             System.out.println("Получен запрос от нового клиента");
 
@@ -49,7 +50,7 @@ public class ServerV2 {
             // поток записи в сокет
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-            System.out.println("Создание нового ClientHandler для нового клиента...");
+//            System.out.println("Создание нового ClientHandler для нового клиента...");
             clientName = dis.readUTF();
             // Создание нового clientHandler для этого запроса.
             ClientHandlerV2 mtch = new ClientHandlerV2(socket,clientName, dis, dos);
@@ -59,7 +60,7 @@ public class ServerV2 {
             // Создание нового потока для этого объекта (clientHandler).
             Thread t = new Thread(mtch);
 
-            System.out.println("Добавление клиента в список клиентов");
+//            System.out.println("Добавление клиента в список клиентов");
 
             // Добавление клиента в список клиентов
             clients.add(mtch);
@@ -71,4 +72,5 @@ public class ServerV2 {
         }
 
     }
+
 }
