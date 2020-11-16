@@ -1,12 +1,11 @@
 package app;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,11 +25,10 @@ import java.util.concurrent.Executors;
 public class ServerV3 {
     private static final int PORT = 5000; // номер порта
     private static List<Socket> socketList = new ArrayList<>(); // сохраняет подключенные объекты
-//    public static Map<String, Socket> userSocketMap = new TreeMap<>(); // сохраняет подключенные объекты
     private ExecutorService exec; // ExecutorService для управления потоками
     private ServerSocket serverSocket; // Серверный сокет
     private Socket client; // Клиентский сокет
-    private static String clientName;
+    private PrintWriter sendAcceptToClient; // Поток на отсылку информационных сообщений клиенту со стороны сервера
 
     public static void main(String[] args) {
         new ServerV3();
@@ -50,22 +48,17 @@ public class ServerV3 {
             // запуск бесконечной петли для ожидания подключений
             while (true) {
                 client = serverSocket.accept(); // ожидание подключения
+                sendAcceptToClient = new PrintWriter(client.getOutputStream(), true);
+                sendAcceptToClient.println("Вы подключились к серверу"); // сообщение клиенту об удачном подключении к серверу
 
                 socketList.add(client); // добавление пользователя в список подключенных клиентов
-//                                userSocketMap.put(clientHandler.getClientName(), client); // добавление пользователя в список подключенных клиентов
                 ClientHandlerV3 clientHandler = new ClientHandlerV3(client);
                 exec.execute(clientHandler); // При вызове метода execute исполняется поток thread. То есть, метод execute запускает указанный поток на исполнение.
-
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
-
-//    public Map<String, Socket> getUserSocketMap() {
-//        return userSocketMap;
-//    }
-
 
     public static List<Socket> getSocketList() {
         return socketList;

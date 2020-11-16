@@ -18,11 +18,11 @@ import java.util.concurrent.Executors;
  * 5. Цикл на чтение и распечатку сообщений из потока.
  */
 
-
 public class ClientV3 {
-    private static final int PORT = 5000;
-    private static ExecutorService exec = Executors.newCachedThreadPool();
-    private static String clientName;
+    private final int PORT = 5000;
+    private final String HOST = "localhost";
+    private ExecutorService exec = Executors.newCachedThreadPool();
+    private String clientName;
 
     public static void main(String[] args) throws Exception {
         new ClientV3();
@@ -34,18 +34,18 @@ public class ClientV3 {
             System.out.println("Введите имя пользователя: ");
             clientName = scn.nextLine();
 
-            Socket socket = new Socket("localhost", PORT); // подключение сокета
+            Socket socket = new Socket(HOST, PORT); // подключение сокета
             exec.execute(new Sender(socket)); //выполнение класса рассылки сообщений
-            System.out.println("[" + clientName + "] Hello, welcome to Afei chat room!");
+            System.out.println("[" + clientName + "] Hello, welcome to chat room!");
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream())); // поток на чтение сокета сервера
+
             String msg;
-            while ((msg = br.readLine()) != null) {
+            while ((msg = br.readLine()) != null) { // цикл на принятие сообщения с сервера
                 System.out.println(msg);
             }
         } catch (Exception e) {
-            System.out.println("Client " + clientName + " left room" );
-//            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -56,11 +56,11 @@ public class ClientV3 {
      * 2. Запускается метод run().
      * 3. Создается поток на чтение из консоли.
      * 4. Отправка имени клиента в поток.
-     * 5. В цикле while идет непрерывное чтение входящего, из консоли, потока данных, и последующая отправка сообщений в поток сокета.
+     * 5. В цикле while идет непрерывное чтение входящего, из консоли, потока данных (сообщения клиента), и последующая отправка сообщений в поток сокета.
      * 6. Если входящее сообщение - "bye", идет закрытие потоков на чтение/запись.
      *
      */
-    static class Sender implements Runnable {
+    class Sender implements Runnable {
         private Socket socket;
 
         public Sender(Socket socket) {
@@ -75,7 +75,7 @@ public class ClientV3 {
 
                 pw.println(clientName); // запись в поток
                 System.out.println("Можете печатать сообщение: ");
-                // цикл на отправку сообщений
+                // цикл на отправку сообщений пользователем
                 while (true) {
                     msg = br.readLine();
                     pw.println(msg);
@@ -89,7 +89,7 @@ public class ClientV3 {
                 }
             } catch (Exception e) {
                 System.out.println("Client " + clientName + " left room" );
-//                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
     }
